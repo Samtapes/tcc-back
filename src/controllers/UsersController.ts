@@ -11,11 +11,11 @@ class UsersController {
   async register(req: Request, res: Response): Promise<Response>{
 
     // Getting user register info
-    const {image_url, name, email, password, medic} = req.body;
+    const {name, email, password, medic} = req.body;
 
     // Creating account
     try{
-      const user_id = await usersService.register({image_url, name, email, password, medic});
+      const user_id = await usersService.register({name, email, password, medic});
       return res.json(user_id);
     }catch(err){
       return res.status(400).json({message: err.message});

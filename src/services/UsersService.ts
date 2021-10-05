@@ -8,9 +8,7 @@ const getDateTime = new GetDateTime();
 interface IMedic{
   specialization_id: string;
   register_number: string;
-  description?: string;
   phone_number: string;
-  patient_preferences?: string;
 }
 
 interface IUserRegister{
@@ -89,9 +87,7 @@ class UsersService {
           user_id: userID,
           specialization_id: medic.specialization_id,
           register_number: medic.register_number,
-          description: medic.description,
           phone_number: medic.phone_number,
-          patient_preferences: medic.patient_preferences
         })
       }
 
