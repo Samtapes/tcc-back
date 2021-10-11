@@ -245,6 +245,7 @@ class UsersService {
       const medics = await connection('medics')
         .join('users', 'medics.user_id', '=', 'users.id')
         .join('specializations', 'medics.specialization_id', '=', 'specializations.id')
+        .join('consults_configurations', 'medics.user_id', '=', 'consults_configurations.medic_id')
         .select('users.id', 'users.name', 'users.image_url', 'specializations.name as specialization').limit(10)
         .offset(10 * page);
       return medics

@@ -70,7 +70,7 @@ class ConsultsController {
       const consult_id = await consultsService.createConsult({medic_id, patient_id, date, scheduled_time, additional_info})
       return res.json(consult_id);
     } catch (err) {
-      return res.json({ error: err.message})
+      return res.status(404).json({ message: err.message });
     }
   }
 

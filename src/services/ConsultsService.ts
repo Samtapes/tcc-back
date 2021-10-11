@@ -122,7 +122,7 @@ class ConsultsService {
       .join('medics', 'consults_configurations.medic_id', '=', 'medics.user_id')
       .join('specializations', 'medics.specialization_id', '=', 'specializations.id')
       .join('users', 'consults_configurations.medic_id', '=', 'users.id')
-      .select('users.image_url','users.name', 'specializations.name as specialization', 'consults_configurations.price', 'consults_configurations.description', 'consults_configurations.additional_info', 'consults_configurations.start_of_work', 'consults_configurations.end_of_work').first();
+      .select('users.id', 'users.image_url','users.name', 'specializations.name as specialization', 'consults_configurations.price', 'consults_configurations.description', 'consults_configurations.additional_info', 'consults_configurations.start_of_work', 'consults_configurations.end_of_work').first();
 
     return configuration;
   }
