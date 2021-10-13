@@ -3,7 +3,7 @@ import { routes } from './routes';
 import cors from 'cors';
 
 const corsOptions = {
-  origin: true
+  origin: '*'
 }
 
 const app = express();
