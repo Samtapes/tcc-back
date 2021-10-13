@@ -273,7 +273,7 @@ class ConsultsService {
 
     // Getting consult data if the user that is requesting is a patient
     else {
-      const consult = await connection('consults').where('patient_id', user_id).join('users', 'consults.medic_id', '=', 'users.id').select('consults.id', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')
+      const consult = await connection('consults').where('patient_id', user_id).join('users', 'consults.medic_id', '=', 'users.id').join('medics', 'consults.medic_id', '=', 'medics.user_id').join('specializations', 'medics.specialization_id', '=', 'specializations.id').select('consults.id', 'specializations.name as specialization', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')
       return consult
     }
   }
