@@ -1,6 +1,6 @@
 "use strict";
 // Update with your config settings.
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.configuration = void 0;
 var configuration = {
     development: {
@@ -12,7 +12,7 @@ var configuration = {
             directory: './src/database/migrations',
             extension: 'ts'
         },
-        useNullAsDefault: true
+        useNullAsDefault: true,
     },
     staging: {
         client: 'postgresql',

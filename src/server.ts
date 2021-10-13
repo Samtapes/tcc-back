@@ -3,7 +3,7 @@ import { routes } from './routes';
 import cors from 'cors';
 
 const corsOptions = {
-  origin: 'http://localhost:3000'
+  origin: false
 }
 
 const app = express();
