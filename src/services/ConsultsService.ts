@@ -28,6 +28,12 @@ interface IEditConsult {
   scheduled_time: string
 }
 
+interface IConsultConfirmation {
+  consult_id: string,
+  medic_id: string,
+  confirmation: boolean,
+}
+
 class ConsultsService {
 
   // Creating consult configuration
@@ -425,6 +431,54 @@ class ConsultsService {
         updated_at: getDateTime.stamp()
       })
     }
+  }
+
+  // Edit consult confirmation
+  async editConsultConfirmation({consult_id, medic_id, confirmation}: IConsultConfirmation) {
+
+    // Checking if medic exists
+    const userExists = await connection('medics').where('user_id', medic_id).select('specialization_id').first()
+
+    if (!userExists) {
+      throw new Error("Médico inexistente!")
+    }
+
+
+    // Checking if this consult exist
+    const consultExists = await connection('consults').where('id', consult_id).select('*').first()
+
+    if (!consultExists) {
+      throw new Error("Consulta inexistente")
+    }
+
+
+    // Checking if the user is changing nothing
+    if (confirmation === consultExists.confirmed) {
+      throw new Error("Não é possível não mudar nada!")
+    }
+
+
+    // Checking if this user have this consult
+    const userConsultExists = await connection('consults').where('id', consult_id).where('medic_id', medic_id).select('*').first()
+
+    if (!userConsultExists) {
+      throw new Error("Essa consulta não é sua!")
+    }
+
+
+    // Checking if the medic created consult configuration
+    const configExist = await connection('consults_configurations').select('*').where('medic_id', consultExists.medic_id).first();
+
+    if(!configExist){
+      throw new Error('Médico não criou configuração de consulta!');
+    }    
+
+
+    // Updating consult confirmation
+    await connection('consults').where('id', consult_id).where('medic_id', medic_id).update({
+      confirmed: confirmation,
+      updated_at: getDateTime.stamp()
+    })
   }
 }
 

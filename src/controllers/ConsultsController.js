@@ -186,6 +186,30 @@ var ConsultsController = /** @class */ (function () {
             });
         });
     };
+    ConsultsController.prototype.editConsultConfirmation = function (req, res) {
+        return __awaiter(this, void 0, void 0, function () {
+            var confirmation, consult_id, medic_id, err_7;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        confirmation = req.body.confirmation;
+                        consult_id = req.params.consult_id;
+                        medic_id = req.headers.authorization;
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, consultsService.editConsultConfirmation({ consult_id: consult_id, medic_id: medic_id, confirmation: confirmation })];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/, res.status(200).send()];
+                    case 3:
+                        err_7 = _a.sent();
+                        return [2 /*return*/, res.status(404).json({ message: err_7.message })];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
     return ConsultsController;
 }());
 exports.ConsultsController = ConsultsController;

@@ -411,6 +411,54 @@ var ConsultsService = /** @class */ (function () {
             });
         });
     };
+    // Edit consult confirmation
+    ConsultsService.prototype.editConsultConfirmation = function (_a) {
+        var consult_id = _a.consult_id, medic_id = _a.medic_id, confirmation = _a.confirmation;
+        return __awaiter(this, void 0, void 0, function () {
+            var userExists, consultExists, userConsultExists, configExist;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, connection_1.connection('medics').where('user_id', medic_id).select('specialization_id').first()];
+                    case 1:
+                        userExists = _b.sent();
+                        if (!userExists) {
+                            throw new Error("Médico inexistente!");
+                        }
+                        return [4 /*yield*/, connection_1.connection('consults').where('id', consult_id).select('*').first()];
+                    case 2:
+                        consultExists = _b.sent();
+                        if (!consultExists) {
+                            throw new Error("Consulta inexistente");
+                        }
+                        // Checking if the user is changing nothing
+                        if (confirmation === consultExists.confirmed) {
+                            throw new Error("Não é possível não mudar nada!");
+                        }
+                        return [4 /*yield*/, connection_1.connection('consults').where('id', consult_id).where('medic_id', medic_id).select('*').first()];
+                    case 3:
+                        userConsultExists = _b.sent();
+                        if (!userConsultExists) {
+                            throw new Error("Essa consulta não é sua!");
+                        }
+                        return [4 /*yield*/, connection_1.connection('consults_configurations').select('*').where('medic_id', consultExists.medic_id).first()];
+                    case 4:
+                        configExist = _b.sent();
+                        if (!configExist) {
+                            throw new Error('Médico não criou configuração de consulta!');
+                        }
+                        // Updating consult confirmation
+                        return [4 /*yield*/, connection_1.connection('consults').where('id', consult_id).where('medic_id', medic_id).update({
+                                confirmed: confirmation,
+                                updated_at: getDateTime.stamp()
+                            })];
+                    case 5:
+                        // Updating consult confirmation
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     return ConsultsService;
 }());
 exports.ConsultsService = ConsultsService;

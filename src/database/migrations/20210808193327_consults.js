@@ -49,6 +49,7 @@ function up(knex) {
                     table.date('date').notNullable();
                     table.time('scheduled_time').notNullable();
                     table.string('additional_info');
+                    table.boolean('confirmed').notNullable().defaultTo(0);
                     table.time('started_at');
                     table.time('finished_at');
                     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now());

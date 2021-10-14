@@ -99,6 +99,19 @@ class ConsultsController {
       return res.status(404).json({message: err.message})
     }
   }
+
+  async editConsultConfirmation(req: Request, res: Response): Promise<Response> {
+    const {confirmation} = req.body;
+    const {consult_id} = req.params;
+    const medic_id = req.headers.authorization;
+
+    try{
+      await consultsService.editConsultConfirmation({consult_id, medic_id, confirmation})
+      return res.status(200).send()
+    } catch (err) {
+      return res.status(404).json({message: err.message})
+    }
+  }
 }
 
 export {ConsultsController}

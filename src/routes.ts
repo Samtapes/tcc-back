@@ -41,8 +41,8 @@ routes.put('/medic/consult_configuration', consultsController.editConfiguration)
 routes.post('/consult/:medic_id', consultsController.createConsult);
 routes.get('/consult', consultsController.getConsult);
 routes.put('/consult/:consult_id', consultsController.editConsult);
+routes.patch('/consult/:consult_id', consultsController.editConsultConfirmation)
 
 // change start of the consult and end, createAvaliation, getAvaliations, return avalaition in medic user search, createMessage, getMessages, 
-
 
 export {routes}

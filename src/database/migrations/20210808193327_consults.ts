@@ -15,6 +15,7 @@ export async function up(knex: Knex): Promise<void> {
     table.time('scheduled_time').notNullable();
 
     table.string('additional_info');
+    table.boolean('confirmed').notNullable().defaultTo(0);
 
     table.time('started_at');
     table.time('finished_at');

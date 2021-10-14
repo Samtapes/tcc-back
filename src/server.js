@@ -7,7 +7,7 @@ var express_1 = __importDefault(require("express"));
 var routes_1 = require("./routes");
 var cors_1 = __importDefault(require("cors"));
 var corsOptions = {
-    origin: true
+    origin: '*'
 };
 var app = express_1.default();
 app.use(cors_1.default(corsOptions));
