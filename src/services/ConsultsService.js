@@ -263,9 +263,9 @@ var ConsultsService = /** @class */ (function () {
         });
     };
     // Get consult
-    ConsultsService.prototype.getConsults = function (user_id) {
+    ConsultsService.prototype.getConsults = function (user_id, consultType) {
         return __awaiter(this, void 0, void 0, function () {
-            var is_medic, consult, consult;
+            var is_medic, consult, consult, consult;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, connection_1.connection('users').where('id', user_id).select('is_medic').first()
@@ -277,15 +277,22 @@ var ConsultsService = /** @class */ (function () {
                         if (!is_medic) {
                             throw new Error('Esse usuário não existe!');
                         }
-                        if (!is_medic.is_medic) return [3 /*break*/, 3];
-                        return [4 /*yield*/, connection_1.connection('consults').where('medic_id', user_id).join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')];
+                        if (!is_medic.is_medic) return [3 /*break*/, 6];
+                        if (!(consultType === 'confirmadas')) return [3 /*break*/, 3];
+                        return [4 /*yield*/, connection_1.connection('consults').where('medic_id', user_id).where('confirmed', true).join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')];
                     case 2:
                         consult = _a.sent();
                         return [2 /*return*/, consult];
-                    case 3: return [4 /*yield*/, connection_1.connection('consults').where('patient_id', user_id).join('users', 'consults.medic_id', '=', 'users.id').join('medics', 'consults.medic_id', '=', 'medics.user_id').join('specializations', 'medics.specialization_id', '=', 'specializations.id').select('consults.id', 'specializations.name as specialization', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')];
+                    case 3: return [4 /*yield*/, connection_1.connection('consults').where('medic_id', user_id).where('confirmed', false).join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')];
                     case 4:
                         consult = _a.sent();
                         return [2 /*return*/, consult];
+                    case 5: return [3 /*break*/, 8];
+                    case 6: return [4 /*yield*/, connection_1.connection('consults').where('patient_id', user_id).join('users', 'consults.medic_id', '=', 'users.id').join('medics', 'consults.medic_id', '=', 'medics.user_id').join('specializations', 'medics.specialization_id', '=', 'specializations.id').select('consults.id', 'consults.confirmed', 'specializations.name as specialization', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')];
+                    case 7:
+                        consult = _a.sent();
+                        return [2 /*return*/, consult];
+                    case 8: return [2 /*return*/];
                 }
             });
         });

@@ -141,20 +141,21 @@ var ConsultsController = /** @class */ (function () {
     // Getting consult
     ConsultsController.prototype.getConsult = function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var user_id, consults, err_5;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var user_id, _a, consultType, consults, err_5;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         user_id = req.headers.authorization;
-                        _a.label = 1;
+                        _a = req.params.consultType, consultType = _a === void 0 ? 'pendentes' : _a;
+                        _b.label = 1;
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, consultsService.getConsults(user_id)];
+                        _b.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, consultsService.getConsults(user_id, consultType)];
                     case 2:
-                        consults = _a.sent();
+                        consults = _b.sent();
                         return [2 /*return*/, res.json(consults)];
                     case 3:
-                        err_5 = _a.sent();
+                        err_5 = _b.sent();
                         return [2 /*return*/, res.status(404).json({ message: err_5.message })];
                     case 4: return [2 /*return*/];
                 }

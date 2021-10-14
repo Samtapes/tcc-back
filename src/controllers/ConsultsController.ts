@@ -77,9 +77,10 @@ class ConsultsController {
   // Getting consult
   async getConsult(req: Request, res: Response): Promise<Response> {
     const user_id = req.headers.authorization
+    const {consultType='pendentes'} = req.params
 
     try {
-      const consults = await consultsService.getConsults(user_id)
+      const consults = await consultsService.getConsults(user_id, consultType)
       return res.json(consults)
     } catch (err) {
       return res.status(404).json({ message: err.message})

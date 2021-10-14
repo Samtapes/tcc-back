@@ -262,7 +262,7 @@ class ConsultsService {
   }
 
   // Get consult
-  async getConsults(user_id: string) {
+  async getConsults(user_id: string, consultType: string) {
 
     const is_medic = await connection('users').where('id', user_id).select('is_medic').first()
 
@@ -273,13 +273,18 @@ class ConsultsService {
 
     // Getting consult data if the user that is requesting is a medic
     if (is_medic.is_medic) {
-      const consult = await connection('consults').where('medic_id', user_id).join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')
-      return consult
+      if (consultType === 'confirmadas') {
+        const consult = await connection('consults').where('medic_id', user_id).where('confirmed', true).join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')
+        return consult
+      } else {
+        const consult = await connection('consults').where('medic_id', user_id).where('confirmed', false).join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')
+        return consult
+      }
     }
 
     // Getting consult data if the user that is requesting is a patient
     else {
-      const consult = await connection('consults').where('patient_id', user_id).join('users', 'consults.medic_id', '=', 'users.id').join('medics', 'consults.medic_id', '=', 'medics.user_id').join('specializations', 'medics.specialization_id', '=', 'specializations.id').select('consults.id', 'specializations.name as specialization', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')
+      const consult = await connection('consults').where('patient_id', user_id).join('users', 'consults.medic_id', '=', 'users.id').join('medics', 'consults.medic_id', '=', 'medics.user_id').join('specializations', 'medics.specialization_id', '=', 'specializations.id').select('consults.id', 'consults.confirmed', 'specializations.name as specialization', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')
       return consult
     }
   }
