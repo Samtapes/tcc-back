@@ -113,6 +113,18 @@ class ConsultsController {
       return res.status(404).json({message: err.message})
     }
   }
+
+  async editConsultStartFinishTime(req: Request, res: Response): Promise<Response> {
+    const {consult_id, method} = req.params;
+    const medic_id = req.headers.authorization;
+
+    try{
+      await consultsService.editConsultStartFinishTime({consult_id, medic_id, method})
+      return res.status(200).send()
+    } catch (err) {
+      return res.status(404).json({message: err.message})
+    }
+  }
 }
 
 export {ConsultsController}

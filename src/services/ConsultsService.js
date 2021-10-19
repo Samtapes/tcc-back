@@ -265,7 +265,7 @@ var ConsultsService = /** @class */ (function () {
     // Get consult
     ConsultsService.prototype.getConsults = function (user_id, consultType) {
         return __awaiter(this, void 0, void 0, function () {
-            var is_medic, consult, consult, consult;
+            var is_medic, consult, consult, consult, consult, consult;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, connection_1.connection('users').where('id', user_id).select('is_medic').first()
@@ -277,22 +277,34 @@ var ConsultsService = /** @class */ (function () {
                         if (!is_medic) {
                             throw new Error('Esse usuário não existe!');
                         }
-                        if (!is_medic.is_medic) return [3 /*break*/, 6];
+                        if (!is_medic.is_medic) return [3 /*break*/, 8];
                         if (!(consultType === 'confirmadas')) return [3 /*break*/, 3];
-                        return [4 /*yield*/, connection_1.connection('consults').where('medic_id', user_id).where('confirmed', true).join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')];
+                        return [4 /*yield*/, connection_1.connection('consults').where('medic_id', user_id).where('confirmed', true).whereNull('finished_at').join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time', 'consults.started_at', 'consults.finished_at')];
                     case 2:
                         consult = _a.sent();
                         return [2 /*return*/, consult];
-                    case 3: return [4 /*yield*/, connection_1.connection('consults').where('medic_id', user_id).where('confirmed', false).join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')];
+                    case 3:
+                        if (!(consultType === 'pendentes')) return [3 /*break*/, 5];
+                        return [4 /*yield*/, connection_1.connection('consults').where('medic_id', user_id).where('confirmed', false).join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time', 'consults.started_at', 'consults.finished_at')];
                     case 4:
                         consult = _a.sent();
                         return [2 /*return*/, consult];
-                    case 5: return [3 /*break*/, 8];
-                    case 6: return [4 /*yield*/, connection_1.connection('consults').where('patient_id', user_id).join('users', 'consults.medic_id', '=', 'users.id').join('medics', 'consults.medic_id', '=', 'medics.user_id').join('specializations', 'medics.specialization_id', '=', 'specializations.id').select('consults.id', 'consults.confirmed', 'specializations.name as specialization', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')];
-                    case 7:
+                    case 5: return [4 /*yield*/, connection_1.connection('consults').where('medic_id', user_id).where('confirmed', true).whereNotNull('finished_at').join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time', 'consults.started_at', 'consults.finished_at')];
+                    case 6:
                         consult = _a.sent();
                         return [2 /*return*/, consult];
-                    case 8: return [2 /*return*/];
+                    case 7: return [3 /*break*/, 12];
+                    case 8:
+                        if (!(consultType === 'finalizadas')) return [3 /*break*/, 10];
+                        return [4 /*yield*/, connection_1.connection('consults').where('patient_id', user_id).whereNotNull('finished_at').join('users', 'consults.medic_id', '=', 'users.id').join('medics', 'consults.medic_id', '=', 'medics.user_id').join('specializations', 'medics.specialization_id', '=', 'specializations.id').select('consults.id', 'consults.confirmed', 'specializations.name as specialization', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time', 'consults.started_at', 'consults.finished_at')];
+                    case 9:
+                        consult = _a.sent();
+                        return [2 /*return*/, consult];
+                    case 10: return [4 /*yield*/, connection_1.connection('consults').where('patient_id', user_id).whereNull('finished_at').join('users', 'consults.medic_id', '=', 'users.id').join('medics', 'consults.medic_id', '=', 'medics.user_id').join('specializations', 'medics.specialization_id', '=', 'specializations.id').select('consults.id', 'consults.confirmed', 'specializations.name as specialization', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time', 'consults.started_at', 'consults.finished_at')];
+                    case 11:
+                        consult = _a.sent();
+                        return [2 /*return*/, consult];
+                    case 12: return [2 /*return*/];
                 }
             });
         });
@@ -462,6 +474,71 @@ var ConsultsService = /** @class */ (function () {
                         // Updating consult confirmation
                         _b.sent();
                         return [2 /*return*/];
+                }
+            });
+        });
+    };
+    // Edit consult start or finish time
+    ConsultsService.prototype.editConsultStartFinishTime = function (_a) {
+        var consult_id = _a.consult_id, medic_id = _a.medic_id, method = _a.method;
+        return __awaiter(this, void 0, void 0, function () {
+            var userExists, consultExists, userConsultExists, configExist;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, connection_1.connection('medics').where('user_id', medic_id).select('specialization_id').first()];
+                    case 1:
+                        userExists = _b.sent();
+                        if (!userExists) {
+                            throw new Error("Médico inexistente!");
+                        }
+                        return [4 /*yield*/, connection_1.connection('consults').where('id', consult_id).select('*').first()];
+                    case 2:
+                        consultExists = _b.sent();
+                        if (!consultExists) {
+                            throw new Error("Consulta inexistente");
+                        }
+                        // Checking if consult already started or finished
+                        if (method === 'start') {
+                            if (consultExists.started_at !== null) {
+                                throw new Error("Não é possível iniciar uma consulta já iniciada");
+                            }
+                        }
+                        else if (method === 'finish') {
+                            if (consultExists.finished_at !== null) {
+                                throw new Error("Não é possível finalizar uma consulta já finalizada");
+                            }
+                        }
+                        return [4 /*yield*/, connection_1.connection('consults').where('id', consult_id).where('medic_id', medic_id).select('*').first()];
+                    case 3:
+                        userConsultExists = _b.sent();
+                        if (!userConsultExists) {
+                            throw new Error("Essa consulta não é sua!");
+                        }
+                        return [4 /*yield*/, connection_1.connection('consults_configurations').select('*').where('medic_id', consultExists.medic_id).first()];
+                    case 4:
+                        configExist = _b.sent();
+                        if (!configExist) {
+                            throw new Error('Médico não criou configuração de consulta!');
+                        }
+                        if (!(method === 'start')) return [3 /*break*/, 6];
+                        return [4 /*yield*/, connection_1.connection('consults').where('id', consult_id).where('medic_id', medic_id).update({
+                                started_at: (new Date().getHours() < 10 ? '0' + new Date().getHours() : new Date().getHours()) + ':' + (new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes()) + ':' + (new Date().getSeconds() < 10 ? '0' + new Date().getSeconds() : new Date().getSeconds()),
+                                updated_at: getDateTime.stamp()
+                            })];
+                    case 5:
+                        _b.sent();
+                        return [3 /*break*/, 9];
+                    case 6:
+                        if (!(method === 'finish')) return [3 /*break*/, 8];
+                        return [4 /*yield*/, connection_1.connection('consults').where('id', consult_id).where('medic_id', medic_id).update({
+                                finished_at: (new Date().getHours() < 10 ? '0' + new Date().getHours() : new Date().getHours()) + ':' + (new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes()) + ':' + (new Date().getSeconds() < 10 ? '0' + new Date().getSeconds() : new Date().getSeconds()),
+                                updated_at: getDateTime.stamp()
+                            })];
+                    case 7:
+                        _b.sent();
+                        return [3 /*break*/, 9];
+                    case 8: throw new Error('Método inválido!');
+                    case 9: return [2 /*return*/];
                 }
             });
         });

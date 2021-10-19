@@ -34,6 +34,12 @@ interface IConsultConfirmation {
   confirmation: boolean,
 }
 
+interface IConsultStartFinishTime {
+  consult_id: string,
+  medic_id: string,
+  method: string,
+}
+
 class ConsultsService {
 
   // Creating consult configuration
@@ -274,18 +280,26 @@ class ConsultsService {
     // Getting consult data if the user that is requesting is a medic
     if (is_medic.is_medic) {
       if (consultType === 'confirmadas') {
-        const consult = await connection('consults').where('medic_id', user_id).where('confirmed', true).join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')
+        const consult = await connection('consults').where('medic_id', user_id).where('confirmed', true).whereNull('finished_at').join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time', 'consults.started_at', 'consults.finished_at')
+        return consult
+      } else if (consultType === 'pendentes') {
+        const consult = await connection('consults').where('medic_id', user_id).where('confirmed', false).join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time', 'consults.started_at', 'consults.finished_at')
         return consult
       } else {
-        const consult = await connection('consults').where('medic_id', user_id).where('confirmed', false).join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')
+        const consult = await connection('consults').where('medic_id', user_id).where('confirmed', true).whereNotNull('finished_at').join('users', 'consults.patient_id', '=', 'users.id').select('consults.id', 'consults.confirmed', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time', 'consults.started_at', 'consults.finished_at')
         return consult
       }
     }
 
     // Getting consult data if the user that is requesting is a patient
     else {
-      const consult = await connection('consults').where('patient_id', user_id).join('users', 'consults.medic_id', '=', 'users.id').join('medics', 'consults.medic_id', '=', 'medics.user_id').join('specializations', 'medics.specialization_id', '=', 'specializations.id').select('consults.id', 'consults.confirmed', 'specializations.name as specialization', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time')
-      return consult
+      if (consultType === 'finalizadas'){
+        const consult = await connection('consults').where('patient_id', user_id).whereNotNull('finished_at').join('users', 'consults.medic_id', '=', 'users.id').join('medics', 'consults.medic_id', '=', 'medics.user_id').join('specializations', 'medics.specialization_id', '=', 'specializations.id').select('consults.id', 'consults.confirmed', 'specializations.name as specialization', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time', 'consults.started_at', 'consults.finished_at')
+        return consult  
+      } else {
+        const consult = await connection('consults').where('patient_id', user_id).whereNull('finished_at').join('users', 'consults.medic_id', '=', 'users.id').join('medics', 'consults.medic_id', '=', 'medics.user_id').join('specializations', 'medics.specialization_id', '=', 'specializations.id').select('consults.id', 'consults.confirmed', 'specializations.name as specialization', 'users.image_url', 'users.name', 'consults.additional_info', 'consults.date', 'consults.scheduled_time', 'consults.started_at', 'consults.finished_at')
+        return consult
+      }
     }
   }
 
@@ -484,6 +498,75 @@ class ConsultsService {
       confirmed: confirmation,
       updated_at: getDateTime.stamp()
     })
+  }
+
+  // Edit consult start or finish time
+  async editConsultStartFinishTime({consult_id, medic_id, method}: IConsultStartFinishTime) {
+
+    // Checking if medic exists
+    const userExists = await connection('medics').where('user_id', medic_id).select('specialization_id').first()
+
+    if (!userExists) {
+      throw new Error("Médico inexistente!")
+    }
+
+
+    // Checking if this consult exist
+    const consultExists = await connection('consults').where('id', consult_id).select('*').first()
+
+    if (!consultExists) {
+      throw new Error("Consulta inexistente")
+    }
+
+
+    // Checking if consult already started or finished
+    if (method === 'start') {
+      if(consultExists.started_at !== null) {
+        throw new Error("Não é possível iniciar uma consulta já iniciada")
+      }
+    }
+
+    else if(method === 'finish'){
+      if(consultExists.finished_at !== null) {
+        throw new Error("Não é possível finalizar uma consulta já finalizada")
+      }
+    }
+
+
+    // Checking if this user have this consult
+    const userConsultExists = await connection('consults').where('id', consult_id).where('medic_id', medic_id).select('*').first()
+
+    if (!userConsultExists) {
+      throw new Error("Essa consulta não é sua!")
+    }
+
+
+    // Checking if the medic created consult configuration
+    const configExist = await connection('consults_configurations').select('*').where('medic_id', consultExists.medic_id).first();
+
+    if(!configExist){
+      throw new Error('Médico não criou configuração de consulta!');
+    }    
+
+
+    // Updating consult started or finished time
+    if (method === 'start') {
+      await connection('consults').where('id', consult_id).where('medic_id', medic_id).update({
+        started_at: (new Date().getHours() < 10 ? '0' + new Date().getHours() : new Date().getHours()) + ':' + (new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes()) + ':' + (new Date().getSeconds() < 10 ? '0' + new Date().getSeconds() : new Date().getSeconds()),
+        updated_at: getDateTime.stamp()
+      })
+    }
+
+    else if (method === 'finish') {
+      await connection('consults').where('id', consult_id).where('medic_id', medic_id).update({
+        finished_at: (new Date().getHours() < 10 ? '0' + new Date().getHours() : new Date().getHours()) + ':' + (new Date().getMinutes() < 10 ? '0' + new Date().getMinutes() : new Date().getMinutes()) + ':' + (new Date().getSeconds() < 10 ? '0' + new Date().getSeconds() : new Date().getSeconds()),
+        updated_at: getDateTime.stamp()
+      })
+    }
+
+    else {
+      throw new Error('Método inválido!')
+    }
   }
 }
 

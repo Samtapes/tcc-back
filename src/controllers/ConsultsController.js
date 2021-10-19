@@ -211,6 +211,29 @@ var ConsultsController = /** @class */ (function () {
             });
         });
     };
+    ConsultsController.prototype.editConsultStartFinishTime = function (req, res) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, consult_id, method, medic_id, err_8;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = req.params, consult_id = _a.consult_id, method = _a.method;
+                        medic_id = req.headers.authorization;
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, consultsService.editConsultStartFinishTime({ consult_id: consult_id, medic_id: medic_id, method: method })];
+                    case 2:
+                        _b.sent();
+                        return [2 /*return*/, res.status(200).send()];
+                    case 3:
+                        err_8 = _b.sent();
+                        return [2 /*return*/, res.status(404).json({ message: err_8.message })];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
     return ConsultsController;
 }());
 exports.ConsultsController = ConsultsController;

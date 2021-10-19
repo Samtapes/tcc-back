@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.routes = void 0;
 var express_1 = __importDefault(require("express"));
 var ConsultsController_1 = require("./controllers/ConsultsController");
+var MessagesController_1 = require("./controllers/MessagesController");
 var SpecializationsController_1 = require("./controllers/SpecializationsController");
 var UsersController_1 = require("./controllers/UsersController");
 var routes = express_1.default.Router();
@@ -13,6 +14,7 @@ exports.routes = routes;
 var specializationsController = new SpecializationsController_1.SpecializationsController();
 var usersController = new UsersController_1.UsersController();
 var consultsController = new ConsultsController_1.ConsultsController();
+var messagesController = new MessagesController_1.MessagesController();
 // Specializations
 routes.post('/specializations/new', specializationsController.newSpecialization);
 routes.post('/specializations', specializationsController.createAllSpecializations);
@@ -37,3 +39,7 @@ routes.post('/consult/:medic_id', consultsController.createConsult);
 routes.get('/consult/:consultType', consultsController.getConsult);
 routes.put('/consult/:consult_id', consultsController.editConsult);
 routes.patch('/consult/:consult_id', consultsController.editConsultConfirmation);
+routes.put('/consult/:consult_id/:method', consultsController.editConsultStartFinishTime);
+// Messages
+routes.post('/consult/:consult_id/messages', messagesController.createMessage);
+routes.get('/consult/:consult_id/messages', messagesController.getMessages);

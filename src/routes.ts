@@ -1,5 +1,6 @@
 import express from 'express';
 import { ConsultsController } from './controllers/ConsultsController';
+import { MessagesController } from './controllers/MessagesController';
 import { SpecializationsController } from './controllers/SpecializationsController';
 import { UsersController } from './controllers/UsersController';
 
@@ -9,6 +10,7 @@ const routes = express.Router();
 const specializationsController = new SpecializationsController();
 const usersController = new UsersController();
 const consultsController = new ConsultsController()
+const messagesController = new MessagesController();
 
 // Specializations
 routes.post('/specializations/new', specializationsController.newSpecialization);
@@ -41,6 +43,13 @@ routes.post('/consult/:medic_id', consultsController.createConsult);
 routes.get('/consult/:consultType', consultsController.getConsult);
 routes.put('/consult/:consult_id', consultsController.editConsult);
 routes.patch('/consult/:consult_id', consultsController.editConsultConfirmation)
+
+routes.put('/consult/:consult_id/:method', consultsController.editConsultStartFinishTime);
+
+// Messages
+routes.post('/consult/:consult_id/messages', messagesController.createMessage);
+routes.get('/consult/:consult_id/messages', messagesController.getMessages);
+
 
 // change start of the consult and end, createAvaliation, getAvaliations, return avalaition in medic user search, createMessage, getMessages, 
 
