@@ -1,19 +1,6 @@
-import express from 'express';
-import { routes } from './routes';
-import cors from 'cors';
-
-const corsOptions = {
-  origin: '*'
-}
-
-const app = express();
-
-app.use(cors(corsOptions))
-
-app.use(express.json());
-
-app.use(routes)
+import {http} from './http';
+import './websocket/index'
 
 const port = process.env.PORT || 3333;
 
-app.listen(port, () => console.log("Server running on 3333"));
+http.listen(port, () => console.log("Server running on 3333"));

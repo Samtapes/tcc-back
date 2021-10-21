@@ -23,7 +23,7 @@ class MessagesController{
 
     try {
       const messages = await messagesService.getMessages(consult_id, sender_id);
-      return res.json({ messages });
+      return res.json(messages);
     } catch (err) {
       return res.status(404).json({message: err.message})
     }

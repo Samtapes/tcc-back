@@ -80,7 +80,7 @@ var MessagesController = /** @class */ (function () {
                         return [4 /*yield*/, messagesService.getMessages(consult_id, sender_id)];
                     case 2:
                         messages = _a.sent();
-                        return [2 /*return*/, res.json({ messages: messages })];
+                        return [2 /*return*/, res.json(messages)];
                     case 3:
                         err_2 = _a.sent();
                         return [2 /*return*/, res.status(404).json({ message: err_2.message })];
